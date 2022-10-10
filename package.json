@@ -1,0 +1,23 @@
+{
+  "name": "stake-scipt",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "chalk": "^5.0.1",
+    "dotenv": "^16.0.1",
+    "ethers": "^5.6.9",
+    "ethers-multisend": "^2.3.0",
+    "keccak256": "^1.0.6",
+    "merkletreejs": "^0.2.32",
+    "spanish-quotes": "^2.0.4"
+  }
+}

@@ -1,0 +1,6 @@
+dist/
+node_modules/
+.env
+accounts*.json
+stake-data.json
+pnpm-lock.yaml

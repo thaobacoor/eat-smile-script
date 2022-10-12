@@ -1,6 +1,8 @@
 import { getRandomQuote } from 'spanish-quotes';
 import { encodeMulti, OperationType } from 'ethers-multisend'
 import { utils, providers, Wallet, Contract, BigNumber } from "ethers";
+import { uniqueNamesGenerator, names, animals } from 'unique-names-generator';
+import randomLocation from 'random-location';
 import dotenv from "dotenv";
 import axios from "axios";
 import Message from "./msg.js";
@@ -8,7 +10,20 @@ import ABI from './abis.js'
 import Cache from "./cache.js";
 
 dotenv.config();
-axios.defaults.headers.common = {'Content-type': 'application/json', 'Authorization': `Bearer ${process.env.JWT_TOKEN2}`}
+axios.defaults.headers.common = {'Content-type': 'application/json', 'Authorization': `Bearer ${process.env.JWT_TOKEN4}`}
+
+const config = {
+  dictionaries: [animals],
+  style: 'capital'
+}
+
+// 133 duong ba trac
+const P = {
+  latitude: 10.747831,
+  longitude: 106.6892126
+}
+
+const R = 1000;
 
 const msg = new Message();
 
@@ -41,7 +56,7 @@ export default class Network {
     try {
       this.cache = cache;
       this.node = new providers.JsonRpcProvider(process.env.FUJI_RPC);
-      this.wallet = new Wallet(process.env.PRIVATE_KEY3);
+      this.wallet = new Wallet(process.env.PRIVATE_KEY4);
       this.account = this.wallet.connect(this.node);
       this.network = await this.node.getNetwork();
       this.eatereum = new Contract(data.EATEREUM, ABI.eatereum, this.account);
@@ -390,6 +405,44 @@ export default class Network {
       } catch (error) {
         console.log(error)
       }
+    }
+  }
+
+  async registerStores(nftId) {
+    for (let i = 0; i < 20; i++) {
+      const url = `${process.env.API_DOMAIN}/stores`
+      const randomPoint = randomLocation.randomCirclePoint(P, R)
+      const randomName = uniqueNamesGenerator(config);
+      const payload = {
+        name: randomName,
+        genre: `${randomName} shop`,
+        typeId: '628f0651685bed30949cbcae',
+        phone: "+84933596726",
+        address: "Dương Bá Trạc, Quận 8, TP.Hồ Chí Minh",
+        website: 'https://www.google.com.vn/',
+        openTime: "24/7",
+        dayOff: "No",
+        location: randomPoint,
+        placeId: "ChIJgY2kawgvdTEROZcFcsupaIs",
+        nftId: `${nftId}`,
+        nftAddress: this.convert.address
+      }
+  
+      try {
+        const { data } = await axios.post(url, payload);
+        const { message, merkleHash, proof, deadline } = data.data;
+  
+        const txCommit = await this.stakingFactory.commit(message)
+        const receiptCommit = await txCommit.wait();
+        msg.success(`[User:commit]: https://testnet.snowtrace.io/tx/${receiptCommit.transactionHash}`);
+  
+        const tx = await this.stakingFactory.createStore(merkleHash, deadline, proof)
+        const receipt = await tx.wait();
+        msg.success(`[User:reveal]: https://testnet.snowtrace.io/tx/${receipt.transactionHash}`);
+  
+      } catch (error) {
+        console.log(error)
+      } 
     }
   }
 

@@ -4,3 +4,4 @@ node_modules/
 accounts*.json
 stake-data.json
 pnpm-lock.yaml
+contractInfo.js

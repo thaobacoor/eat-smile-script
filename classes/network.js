@@ -1,7 +1,7 @@
 import { getRandomQuote } from 'spanish-quotes';
 import { encodeMulti, OperationType } from 'ethers-multisend'
 import { utils, providers, Wallet, Contract, BigNumber } from "ethers";
-import { uniqueNamesGenerator, names, animals } from 'unique-names-generator';
+import { uniqueNamesGenerator, names, animals, starWars } from 'unique-names-generator';
 import randomLocation from 'random-location';
 import dotenv from "dotenv";
 import axios from "axios";
@@ -10,20 +10,19 @@ import ABI from './abis.js'
 import Cache from "./cache.js";
 
 dotenv.config();
-axios.defaults.headers.common = {'Content-type': 'application/json', 'Authorization': `Bearer ${process.env.JWT_TOKEN4}`}
 
 const config = {
-  dictionaries: [animals],
+  dictionaries: [starWars],
   style: 'capital'
 }
 
-// 133 duong ba trac
 const P = {
   latitude: 10.747831,
   longitude: 106.6892126
 }
 
-const R = 1000;
+const R = 500;
+const zeroAddress = '0x0000000000000000000000000000000000000000'
 
 const msg = new Message();
 
@@ -47,16 +46,42 @@ const data = {
   price: utils.parseUnits(`${process.env.GWEI}`, "gwei"), //in gwei
 };
 
-const maxInt = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
-const zeroAddress = '0x0000000000000000000000000000000000000000'
+const accounts = new Map();
+
+accounts.set('0xf1684DaCa9FE469189A3202ae2dE25E80dcB90a1', {
+  privateKey: process.env.PRIVATE_KEY,
+  authToken: process.env.JWT_TOKEN
+});
+
+accounts.set('0xa7364C972BCB10328A754fd28741cB50b663134A', {
+  privateKey: process.env.PRIVATE_KEY2,
+  authToken: process.env.JWT_TOKEN2
+});
+
+accounts.set('0x64470E5F5DD38e497194BbcAF8Daa7CA578926F6', {
+  privateKey: process.env.PRIVATE_KEY3,
+  authToken: process.env.JWT_TOKEN3
+});
+
+accounts.set('0x7F1a42FA8B1D8929F70Fb37E72A1186b0861C55B', {
+  privateKey: process.env.PRIVATE_KEY4,
+  authToken: process.env.JWT_TOKEN4
+});
+
+accounts.set('0xCaa4E159de1bb90F0F6972B27c1E253b96599Ff4', {
+  privateKey: process.env.PRIVATE_KEY5,
+  authToken: process.env.JWT_TOKEN5
+});
+
+
 
 export default class Network {
-  async load(cache) {
+  async load(cache, address) {
     msg.primary(`[debug::network] Load network..`);
     try {
       this.cache = cache;
       this.node = new providers.JsonRpcProvider(process.env.FUJI_RPC);
-      this.wallet = new Wallet(process.env.PRIVATE_KEY4);
+      this.wallet = new Wallet(accounts.get(address).privateKey);
       this.account = this.wallet.connect(this.node);
       this.network = await this.node.getNetwork();
       this.eatereum = new Contract(data.EATEREUM, ABI.eatereum, this.account);
@@ -74,6 +99,7 @@ export default class Network {
 		  this.base_nonce = parseInt(await this.node.getTransactionCount(this.account.address));
 		  this.nonce_offset = 0;
 		  this.first_block = -1;
+      axios.defaults.headers.common = {'Content-type': 'application/json', 'Authorization': `Bearer ${accounts.get(address).authToken}`}
       msg.primary('Completed!')
     } catch (e) {
       msg.error(`[error::network] ${e}`);
@@ -409,7 +435,7 @@ export default class Network {
   }
 
   async registerStores(nftId) {
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 5; i++) {
       const url = `${process.env.API_DOMAIN}/stores`
       const randomPoint = randomLocation.randomCirclePoint(P, R)
       const randomName = uniqueNamesGenerator(config);
@@ -417,7 +443,7 @@ export default class Network {
         name: randomName,
         genre: `${randomName} shop`,
         typeId: '628f0651685bed30949cbcae',
-        phone: "+84933596726",
+        phone: "+705050403",
         address: "Dương Bá Trạc, Quận 8, TP.Hồ Chí Minh",
         website: 'https://www.google.com.vn/',
         openTime: "24/7",
@@ -452,4 +478,3 @@ export default class Network {
     return nonce;
   }
 }
-

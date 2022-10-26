@@ -27,7 +27,7 @@ const network = new Network();
   // await network.multiTransfer('accounts')
   // await network.stakeWithPermit('0xFcE7183d7D1Eb611f38dFeCC3C4E93D48827A790', 'Governance', 'accounts1') // staking
   // await network.stakeWithPermit('0xf81eF9273E1529d6A41b752cf11d04FEE5Da9803', 'Joe LP Token', 'accounts1') // farming
-  await network.registerStores(3360)
+  await network.registerStores(5)
   // save cache just to be sure
   await cache.save();
 
